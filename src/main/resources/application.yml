@@ -5,9 +5,9 @@ spring:
         - classpath:/static/
         - "file:///C:/Users/user/Pictures/MonoUzbBotPhotos/"
   datasource:
-    url: ${DATASOURCE_URl}
-    username: ${DATASOURCE_USER}
-    password: ${DATASOURCE_PASSWORD}
+    url: ${postgresql://monouzb_db_user:B80KKfJIwKGvgXGQCHVTbT9Ez4nH9laa@dpg-d1l7pg2dbo4c739msnp0-a/monouzb_db}
+    username: ${monouzb_db_user}
+    password: ${B80KKfJIwKGvgXGQCHVTbT9Ez4nH9laa}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
