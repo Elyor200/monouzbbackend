@@ -1,0 +1,27 @@
+spring:
+  web:
+    resources:
+      static-locations:
+        - classpath:/static/
+        - "file:///C:/Users/user/Pictures/MonoUzbBotPhotos/"
+  datasource:
+    url: ${DATASOURCE_URl}
+    username: ${DATASOURCE_USER}
+    password: ${DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 8088
+
+telegram:
+  bot:
+    token: 8114214391:AAH87KGeNzym0fBU41MSE1h80GfW1jo9cuc
+    username: monouzbekistanbot_bot
+    webAppUrl: https://435d-94-230-228-144.ngrok-free.app
+
+jwt:
+  secret: "supersecretkeythatshouldbeatleast32byteslong123"
