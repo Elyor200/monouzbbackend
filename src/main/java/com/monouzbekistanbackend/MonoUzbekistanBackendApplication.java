@@ -21,7 +21,7 @@ public class MonoUzbekistanBackendApplication {
                         .allowedOrigins(
                                 "http://localhost:5173",
                                 "http://192.168.100.85:5173",
-                                "https://monouzb-xnkm-j3oil8gxr-elyors-projects-868e1ff0.vercel.app"
+                                "https://monouzb.onrender.com"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedHeaders("*")
