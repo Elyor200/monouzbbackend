@@ -16,6 +16,7 @@ import com.monouzbekistanbackend.repository.UserRepository;
 import com.monouzbekistanbackend.service.user.TempUserSave;
 import com.monouzbekistanbackend.service.user.UserData;
 import jakarta.ws.rs.client.Client;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
@@ -48,6 +49,7 @@ public class TelegramBotService {
     private final TempUserSave tempUserSave;
     private final ProductImageRepository productImageRepository;
 
+    @Getter
     @Value("${telegram.bot.token}")
     private String botToken;
 
@@ -82,11 +84,7 @@ public class TelegramBotService {
                     return;
                 }
 
-//                sendMiniAppButton(chatId);
-
-                String webUrl = "http://192.168.100.85:5173/";
-                sendMessage(chatId, webUrl);
-                sendMessage(chatId, "Please visit the web page to place your order");
+                sendMiniAppButton(chatId);
             }
         }
 
@@ -100,7 +98,7 @@ public class TelegramBotService {
             userData.setChatId(chatId);
             tempUserSave.saveTempUser(phoneNumber, userData);
 
-            String webUrl = "http://192.168.100.85:5173/";
+            String webUrl = "https://monouzb:onrender:com";
             sendMessage(chatId, webUrl);
             sendMessage(chatId, "Please visit the web page to place your order");
         }
@@ -195,27 +193,6 @@ public class TelegramBotService {
         }
     }
 
-    public void SendMessage(Long chatId, String text) {
-        String url = baseUrl + botToken + "sendMessage";
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString("""
-                                {
-                                    "chat_id": "%s",
-                                    "text": "%s",
-                                    "parse_mode": "HTML"
-                                }
-                            """.formatted(chatId, text.replace("\"", "\\\""))))
-                    .build();
-            client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public String buildOrderSummary(Order order) {
         StringBuilder sb = new StringBuilder();
         NumberFormat format = NumberFormat.getInstance(new Locale("uz", "UZ"));
@@ -259,7 +236,7 @@ public class TelegramBotService {
     }
 
     public void sendTelegramPhoto(Long telegramUserId, String photoUrl, String caption) {
-        String url = "https://api.telegram.org/bot8114214391:AAH87KGeNzym0fBU41MSE1h80GfW1jo9cuc/sendPhoto";
+        String url = "https://api.telegram.org/bot" + botToken + "/sendPhoto";
 
         RestTemplate restTemplate = new RestTemplate();
         Map<String, Object> body = new HashMap<>();
@@ -312,10 +289,5 @@ public class TelegramBotService {
             }
         }
         return null;
-    }
-
-
-    public String getBotToken() {
-        return "8114214391:AAH87KGeNzym0fBU41MSE1h80GfW1jo9cuc";
     }
 }
