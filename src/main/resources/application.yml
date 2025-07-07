@@ -19,9 +19,13 @@ server:
 
 telegram:
   bot:
-    token: 8114214391:AAH87KGeNzym0fBU41MSE1h80GfW1jo9cuc
-    username: monouzbekistanbot_bot
-    webAppUrl: https://435d-94-230-228-144.ngrok-free.app
+    token: ${TELEGRAM_BOT_TOKEN}
+    username: ${TELEGRAM_BOT_USERNAME}
+    webAppUrl: ${TELEGRAM_WEBAPP_URL}
 
 jwt:
   secret: "supersecretkeythatshouldbeatleast32byteslong123"
+
+#8114214391:AAH87KGeNzym0fBU41MSE1h80GfW1jo9cuc
+#monouzbekistanbot_bot
+#https://monouzb:onrender:com
