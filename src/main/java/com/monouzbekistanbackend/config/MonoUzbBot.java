@@ -28,7 +28,7 @@ public class MonoUzbBot extends TelegramWebhookBot {
 
     @Override
     public String getBotToken() {
-        return "8114214391:AAH87KGeNzym0fBU41MSE1h80GfW1jo9cuc";
+        return botToken;
     }
 
     @Override
