@@ -1,6 +1,5 @@
 package com.monouzbekistanbackend.config;
 
-import com.monouzbekistanbackend.service.TelegramBotService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -11,7 +10,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 @Configuration
 public class TelegramBotConfig {
     @Bean
-    public TelegramBotsApi telegramBotService(MonoUzbBot monoUzbBot) throws TelegramApiException {
+    public TelegramBotsApi telegramBotsApi(MonoUzbBot monoUzbBot) throws TelegramApiException {
         SetWebhook setWebhook = SetWebhook.builder()
                 .url("https://monouzbbackend.onrender.com/webhook")
                 .build();
