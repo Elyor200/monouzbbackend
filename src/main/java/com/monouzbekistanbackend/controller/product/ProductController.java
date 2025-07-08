@@ -92,4 +92,10 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
+    @DeleteMapping("deleteProductById")
+    public ResponseEntity<?> deleteProductById(@RequestParam String productId) {
+        productService.deleteProductById(productId);
+        return ResponseEntity.ok().build();
+    }
 }

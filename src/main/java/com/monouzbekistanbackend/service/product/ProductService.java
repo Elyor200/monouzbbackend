@@ -135,6 +135,13 @@ public class ProductService {
         .toList();
     }
 
+    public void deleteProductById(String productId) {
+        Product product = productRepository.findByProductId(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        productRepository.delete(product);
+    }
+
     public ResponseProductDto mapToResponseDto(Product product) {
         ResponseProductDto dto = new ResponseProductDto();
         dto.setProductId(product.getProductId());

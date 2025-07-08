@@ -6,15 +6,14 @@ import com.monouzbekistanbackend.entity.ProductPhoto;
 import com.monouzbekistanbackend.repository.ProductImageRepository;
 import com.monouzbekistanbackend.repository.ProductRepository;
 import com.monouzbekistanbackend.service.product.ProductService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -54,5 +53,23 @@ public class ImageUploadController {
                 productPhoto.getColor(),
                 productPhoto.isMain())
         );
+    }
+
+    @DeleteMapping("delete-image")
+    public ResponseEntity<String> deleteImageByProductIdAndColor(@RequestParam("productId") String productId,
+                                                                 @RequestParam String color,
+                                                                 @RequestParam String imageUrl) throws IOException {
+        List<ProductPhoto> matches = productImageRepository.findProductPhotoByProductProductIdAndColor(productId, color)
+                .stream()
+                .filter(photo -> photo.getUrl().equals(imageUrl))
+                .toList();
+
+        if (matches.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("No matching image found for product " + productId + " with the given URL.");
+        }
+
+        productImageRepository.deleteAll(matches);
+        return ResponseEntity.ok("Image deleted: " + imageUrl);
     }
 }

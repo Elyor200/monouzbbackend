@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository
 public interface ProductImageRepository extends JpaRepository<ProductPhoto, UUID> {
     Optional<ProductPhoto> findProductPhotoByProductProductIdAndColor(String productId, String color);
+
+    void findByProductProductIdAndColor(String productId, String color);
 }

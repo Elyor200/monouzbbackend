@@ -1,10 +1,13 @@
 package com.monouzbekistanbackend.service;
 
+import com.monouzbekistanbackend.dto.SeasonDto;
 import com.monouzbekistanbackend.entity.Season;
 import com.monouzbekistanbackend.repository.SeasonRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,5 +27,17 @@ public class SeasonService {
         season.setName(name);
         season.setCreatedAt(LocalDateTime.now());
         return seasonRepository.save(season);
+    }
+
+    public List<SeasonDto> getAllSeason() {
+        List<Season> seasons = seasonRepository.findAll();
+        List<SeasonDto> seasonDtoList = new ArrayList<>();
+        for (Season season : seasons) {
+            SeasonDto seasonDto = new SeasonDto();
+            seasonDto.setSeasonId(season.getSeasonId());
+            seasonDto.setSeasonName(season.getName());
+            seasonDtoList.add(seasonDto);
+        }
+        return seasonDtoList;
     }
 }
