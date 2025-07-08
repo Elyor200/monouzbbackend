@@ -148,8 +148,8 @@ public class ProductService {
         List<String> imageUrl = product.getPhotos().stream()
                 .map(photos -> {
                     String url = photos.getUrl();
-                    if (url.startsWith("/") && url.length() > 2 && url.charAt(2) == ':') {
-                        url = url.substring(1);
+                    if (url.startsWith("http://") || url.startsWith("https://")) {
+                        return url;
                     }
                     String filename = Paths.get(url).getFileName().toString();
                     return "/images/" + filename;
@@ -175,8 +175,8 @@ public class ProductService {
         List<String> imageUrl = product.getPhotos().stream()
                 .map(photos -> {
                     String url = photos.getUrl();
-                    if (url.startsWith("/") && url.length() > 2 && url.charAt(2) == ':') {
-                        url = url.substring(1);
+                    if (url.startsWith("http://") || url.startsWith("https://")) {
+                        return url;
                     }
                     String filename = Paths.get(url).getFileName().toString();
                     return "/images/" + filename;

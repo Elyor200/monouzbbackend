@@ -98,8 +98,7 @@ public class TelegramBotService {
             userData.setChatId(chatId);
             tempUserSave.saveTempUser(phoneNumber, userData);
 
-            String webUrl = "https://monouzb:onrender:com";
-            sendMessage(chatId, webUrl);
+            sendMiniAppButton(chatId);
             sendMessage(chatId, "Please visit the web page to place your order");
         }
     }
@@ -107,6 +106,27 @@ public class TelegramBotService {
     public void sendMiniAppButton(Long telegramUserId) {
         String url = "https://api.telegram.org/bot" + getBotToken() + "/sendMessage";
 
+        Map<String, Object> body = getStringObjectMap(telegramUserId);
+
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            ObjectMapper mapper = new ObjectMapper();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(body)))
+                    .build();
+
+            client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .thenAccept(response -> {
+                        System.out.println("Response: " + response.body());
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Map<String, Object> getStringObjectMap(Long telegramUserId) {
         Map<String, Object> webApp = new HashMap<>();
         webApp.put("url", webAppUrl);
 
@@ -129,23 +149,7 @@ public class TelegramBotService {
         body.put("chat_id", telegramUserId);
         body.put("text", "Welcome Click the button to open shop");
         body.put("reply_markup", replyMarkup);
-
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            ObjectMapper mapper = new ObjectMapper();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(body)))
-                    .build();
-
-            client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                    .thenAccept(response -> {
-                        System.out.println("Response: " + response.body());
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        return body;
     }
 
     public void sendMessage(Long chatId, String text) {
