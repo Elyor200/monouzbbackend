@@ -32,7 +32,7 @@ public class ImageUploadController {
         this.productImageRepository = productImageRepository;
     }
 
-    @PostMapping(value = "upload-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping("upload-image")
     public ResponseEntity<ProductPhotoResponse> uploadImage(@RequestParam("imageUrl") String imageUrl,
                                                             @RequestParam("productId") String productId,
                                                             @RequestParam("color") String color ) throws IOException {
