@@ -147,7 +147,10 @@ public class CartServiceImpl implements CartService {
             String imageUrl = product.getPhotos().stream()
                     .filter(photo -> photo.getColor() != null && photo.getColor().equalsIgnoreCase(cartItem.getColor()))
                     .findFirst()
-                    .map(productPhoto -> "/images/" + new File(productPhoto.getUrl()).getName())
+                    .map(productPhoto -> {
+                        String url = productPhoto.getUrl();
+                        return url.startsWith("http") ? url : "/images/" + new File(url).getName();
+                    })
                     .orElse(null);
 
             return new CartItemResponse(
