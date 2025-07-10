@@ -36,6 +36,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.NumberFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -199,14 +201,15 @@ public class TelegramBotService {
 
     public String buildOrderSummary(Order order) {
         StringBuilder sb = new StringBuilder();
+        ZonedDateTime zonedDateTime = order.getCreatedAt().atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.of("Asia/Tashkent"));
         NumberFormat format = NumberFormat.getInstance(new Locale("uz", "UZ"));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.of("Asia/Tashkent"));
 
         sb.append("<b>Order Confirmation </b>\n\n");
         sb.append("\uD83C\uDD94 Order ID: <code>").append(order.getOrderId()).append("</code>\n");
         sb.append("\uD83D\uDCE6 Status: <b>").append(order.getStatus()).append("</b>\n");
         sb.append("\uD83D\uDCB3 Payment: <b>").append(order.getPaymentMethod().toString().toUpperCase()).append("</b>\n");
-        sb.append("\uD83D\uDD52 Created At: <b>").append(formatter.format(order.getCreatedAt())).append("</b>\n");
+        sb.append("\uD83D\uDD52 Created At: <b>").append(formatter.format(zonedDateTime)).append("</b>\n");
         sb.append("\n");
 
         sb.append("👤 <b>Customer:</b>\n\n");
@@ -226,7 +229,7 @@ public class TelegramBotService {
             sb.append("Product Name: ").append(item.getProductName());
             sb.append("\nProduct ID: <code>").append(item.getProduct().getProductId()).append("</code>");
             sb.append("\nSize: ").append(item.getSize());
-            sb.append("\nColor: ").append(item.getColor());
+            sb.append("\nColor: ").append(item.getColor().toUpperCase());
             sb.append("\nQuantity: ").append(item.getQuantity());
             sb.append("\nPrice: ").append(format.format(item.getTotalPrice())).append(" UZS\n\n");
         }
