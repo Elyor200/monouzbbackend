@@ -260,7 +260,7 @@ public class TelegramBotService {
             Optional<ProductPhoto> photoOptional = productImageRepository.findProductPhotoByProductProductIdAndColor(item.getProduct().getProductId(), item.getColor());
             if (photoOptional.isEmpty()) continue;
 
-            String imageUrl = "https://8c77-2a05-45c2-4031-9e00-b9fc-7a3e-1859-c5c6.ngrok-free.app" + photoOptional.get().getUrl();
+            String imageUrl = photoOptional.get().getUrl();
             String caption = String.format(item.getProduct().getProductId());
 
             sendTelegramPhoto(telegramUserId, imageUrl, caption);

@@ -36,6 +36,7 @@ public class SeasonService {
             SeasonDto seasonDto = new SeasonDto();
             seasonDto.setSeasonId(season.getSeasonId());
             seasonDto.setSeasonName(season.getName());
+            seasonDto.setCreatedAt(season.getCreatedAt().toLocalDate());
             seasonDtoList.add(seasonDto);
         }
         return seasonDtoList;

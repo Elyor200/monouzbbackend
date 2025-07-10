@@ -41,9 +41,11 @@ public class OrderController {
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
             Order order = orderRepository.findOrderByOrderIdV2(orderResponse.orderId());
+
             String message = telegramBotService.buildOrderSummary(order);
             telegramBotService.sendMessage(user.getTelegramUserId(), message);
             telegramBotService.sendProductPhoto(order, user.getTelegramUserId());
+
             telegramBotService.sendMessage(adminChatId, message);
             telegramBotService.sendProductPhoto(order, adminChatId);
             return ResponseEntity.ok(orderResponse);
