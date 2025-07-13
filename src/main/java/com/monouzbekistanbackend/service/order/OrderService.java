@@ -21,8 +21,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -126,8 +128,8 @@ public class OrderService {
         return mapToOrderResponse(order);
     }
 
-    public List<OrderSummaryResponse> getUserOrderHistory(String userId) {
-        List<Order> orderList = orderRepository.findByUserUserId(userId);
+    public List<OrderSummaryResponse> getUserOrderHistory(String phoneNumber) {
+        List<Order> orderList = orderRepository.findByPhoneNumber(phoneNumber);
         return orderList.stream().map(order ->
             new OrderSummaryResponse(
                     order.getOrderId(),
@@ -145,6 +147,9 @@ public class OrderService {
         List<OrderDetailsResponse.OrderItemsDetails> itemsDetailsList = order.getOrderItems().stream().map(orderItem ->
                 new OrderDetailsResponse.OrderItemsDetails(
                         orderItem.getProduct().getName(),
+                        orderItem.getProduct().getProductId(),
+                        formatColor(orderItem.getColor()),
+                        orderItem.getSize(),
                         orderItem.getQuantity(),
                         orderItem.getPriceAtOrderTime(),
                         orderItem.getTotalPrice()
@@ -180,5 +185,17 @@ public class OrderService {
                 order.getStatus(),
                 items
         );
+    }
+
+    private String formatColor(String color) {
+        if (color == null || color.isBlank()) {
+            return "";
+        }
+
+        String withSpaces = color.replaceAll("(?<!^)([A-Z])", " $1");
+
+        return Arrays.stream(withSpaces.trim().split("\\s+"))
+                .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
+                .collect(Collectors.joining(" "));
     }
 }

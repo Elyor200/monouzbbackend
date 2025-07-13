@@ -60,8 +60,8 @@ public class OrderController {
     }
 
     @GetMapping("/getUserHistory")
-    public ResponseEntity<List<OrderSummaryResponse>> getHistory(@RequestParam String userId) {
-        return ResponseEntity.ok(orderService.getUserOrderHistory(userId));
+    public ResponseEntity<List<OrderSummaryResponse>> getHistory(@RequestParam String phoneNumber) {
+        return ResponseEntity.ok(orderService.getUserOrderHistory(phoneNumber));
     }
 
     @GetMapping("/getOrderDetails/{orderId}")

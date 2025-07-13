@@ -19,6 +19,9 @@ public record OrderDetailsResponse(
 ) {
     public record OrderItemsDetails(
             String productName,
+            String productId,
+            String color,
+            String size,
             int quantity,
             BigDecimal unitPrice,
             BigDecimal totalPrice
