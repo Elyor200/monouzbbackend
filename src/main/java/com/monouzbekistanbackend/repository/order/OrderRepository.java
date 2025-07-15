@@ -18,7 +18,7 @@ public interface OrderRepository  extends JpaRepository<Order, Long> {
 
     Optional<Order> findByUserTelegramUserId(Long telegramUserId);
 
-    List<Order> findByPhoneNumber(String phoneNumber);
+    List<Order> findByPhoneNumberOrderByCreatedAtDesc(String phoneNumber);
 
     @Query("SELECT o FROM Order o WHERE o.orderId = :orderId")
     Order findOrderByOrderIdV2(@Param("orderId") UUID orderId);

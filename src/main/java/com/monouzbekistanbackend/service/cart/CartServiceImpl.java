@@ -110,7 +110,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void removeItem(Long telegramUserId, UUID cartItemId) {
-        Cart cart = cartRepository.findByUserTelegramUserId(telegramUserId)
+        Cart cart = cartRepository.findByUserTelegramUserIdAndIsActiveTrue(telegramUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         boolean removed = cart.getCartItems().removeIf(i -> i.getCartItemId().equals(cartItemId));

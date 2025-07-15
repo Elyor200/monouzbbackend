@@ -42,11 +42,12 @@ public class OrderController {
 
             Order order = orderRepository.findOrderByOrderIdV2(orderResponse.orderId());
 
-            String message = telegramBotService.buildOrderSummary(order);
-            telegramBotService.sendMessage(user.getTelegramUserId(), message);
+            OrderMessageDto adminMessage = telegramBotService.buildOrderSummary(order, true);
+            OrderMessageDto userMessage = telegramBotService.buildOrderSummary(order, false);
+            telegramBotService.sendMessage(user.getTelegramUserId(), userMessage.getText());
             telegramBotService.sendProductPhoto(order, user.getTelegramUserId());
 
-            telegramBotService.sendMessage(adminChatId, message);
+            telegramBotService.sendMessageWithMarkup(adminChatId, adminMessage.getText(), adminMessage.getMarkup());
             telegramBotService.sendProductPhoto(order, adminChatId);
             return ResponseEntity.ok(orderResponse);
         } catch (Exception e) {

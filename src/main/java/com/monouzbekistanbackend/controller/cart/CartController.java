@@ -4,6 +4,7 @@ import com.monouzbekistanbackend.dto.cart.CartItemRequest;
 import com.monouzbekistanbackend.dto.cart.CartResponse;
 import com.monouzbekistanbackend.entity.cart.Cart;
 import com.monouzbekistanbackend.service.cart.CartService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,9 +35,13 @@ public class CartController {
     }
 
     @DeleteMapping("/remove/{cartItemId}")
-    public ResponseEntity<Void> removeItem(@RequestParam Long telegramUserId, @PathVariable UUID cartItemId) {
-        cartService.removeItem(telegramUserId, cartItemId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> removeItem(@RequestParam Long telegramUserId, @PathVariable UUID cartItemId) {
+        try {
+            cartService.removeItem(telegramUserId, cartItemId);
+            return ResponseEntity.ok("Item deleted");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/clear")

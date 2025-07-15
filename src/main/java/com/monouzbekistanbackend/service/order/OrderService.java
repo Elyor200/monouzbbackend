@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -90,6 +92,9 @@ public class OrderService {
             throw new NotFoundException("Cart is empty");
         }
 
+        ZoneId uzbZone = ZoneId.of("Asia/Tashkent");
+        LocalDateTime localDateTime = ZonedDateTime.now(uzbZone).toLocalDateTime();
+
         Order order = new Order();
 //        order.setOrderId(UUID.randomUUID());
         order.setUser(cart.getUser());
@@ -102,8 +107,8 @@ public class OrderService {
         order.setLat(request.lat());
         order.setLng(request.lng());
         order.setFullName(request.fullName());
-        order.setUpdatedAt(LocalDateTime.now());
-        order.setCreatedAt(LocalDateTime.now());
+        order.setUpdatedAt(localDateTime);
+        order.setCreatedAt(localDateTime);
 
         List<OrderItem> itemList = cartItems.stream().map(cartItem -> {
             OrderItem orderItem = new OrderItem();
@@ -122,14 +127,14 @@ public class OrderService {
         orderRepository.save(order);
 
         cart.setIsActive(false);
-        cart.setUpdatedAt(LocalDateTime.now());
+        cart.setUpdatedAt(localDateTime);
         cartRepository.save(cart);
 
         return mapToOrderResponse(order);
     }
 
     public List<OrderSummaryResponse> getUserOrderHistory(String phoneNumber) {
-        List<Order> orderList = orderRepository.findByPhoneNumber(phoneNumber);
+        List<Order> orderList = orderRepository.findByPhoneNumberOrderByCreatedAtDesc(phoneNumber);
         return orderList.stream().map(order ->
             new OrderSummaryResponse(
                     order.getOrderId(),

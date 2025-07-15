@@ -5,12 +5,14 @@ import com.monouzbekistanbackend.config.MonoUzbBot;
 import com.monouzbekistanbackend.dto.cart.CartItemResponse;
 import com.monouzbekistanbackend.dto.order.OrderDetailsResponse;
 import com.monouzbekistanbackend.dto.order.OrderItemResponse;
+import com.monouzbekistanbackend.dto.order.OrderMessageDto;
 import com.monouzbekistanbackend.dto.order.OrderResponse;
 import com.monouzbekistanbackend.entity.ProductPhoto;
 import com.monouzbekistanbackend.entity.User;
 import com.monouzbekistanbackend.entity.cart.CartItem;
 import com.monouzbekistanbackend.entity.order.Order;
 import com.monouzbekistanbackend.entity.order.OrderItem;
+import com.monouzbekistanbackend.enums.OrderStatus;
 import com.monouzbekistanbackend.repository.ProductImageRepository;
 import com.monouzbekistanbackend.repository.UserRepository;
 import com.monouzbekistanbackend.service.user.TempUserSave;
@@ -26,7 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
@@ -167,6 +171,20 @@ public class TelegramBotService {
         }
     }
 
+    public void sendMessageWithMarkup(Long chatId, String messageText, InlineKeyboardMarkup markup) {
+        SendMessage message = SendMessage.builder()
+                .chatId(chatId.toString())
+                .text(messageText)
+                .parseMode("HTML")
+                .replyMarkup(markup)
+                .build();
+        try {
+            monoUzbBot.execute(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void sleep(long millis) {
         try {
             Thread.sleep(millis);
@@ -199,13 +217,34 @@ public class TelegramBotService {
         }
     }
 
-    public String buildOrderSummary(Order order) {
+    public OrderMessageDto buildOrderSummary(Order order, boolean isAdmin) {
         StringBuilder sb = new StringBuilder();
         ZonedDateTime zonedDateTime = order.getCreatedAt().atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.of("Asia/Tashkent"));
         NumberFormat format = NumberFormat.getInstance(new Locale("uz", "UZ"));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.of("Asia/Tashkent"));
+        InlineKeyboardMarkup markup = null;
+        if (isAdmin) {
+            List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+            if (order.getStatus() == OrderStatus.PENDING) {
+                buttons.add(List.of(
+                        createButton("Processing", order.getOrderId(), "PROCESSING"),
+                        createButton("Cancel", order.getOrderId(), "CANCELED")
+                ));
+            } else if (order.getStatus() == OrderStatus.PROCESSING) {
+                buttons.add(List.of(
+                        createButton("\uD83D\uDCE6 Ship", order.getOrderId(), "SHIPPED")
+                ));
+            } else if (order.getStatus() == OrderStatus.SHIPPED) {
+                buttons.add(List.of(
+                        createButton("✅ Deliver", order.getOrderId(), "DELIVERED")
+                ));
+            }
 
-        sb.append("<b>Order Confirmation </b>\n\n");
+            markup = new InlineKeyboardMarkup(buttons);
+            sb.append("<b>\uD83D\uDCE6 New Order Received!</b>\n\n");
+        } else {
+            sb.append("<b>Order Confirmation </b>\n\n");
+        }
         sb.append("\uD83C\uDD94 Order ID: <code>").append(order.getOrderId()).append("</code>\n");
         sb.append("\uD83D\uDCE6 Status: <b>").append(order.getStatus()).append("</b>\n");
         sb.append("\uD83D\uDCB3 Payment: <b>").append(order.getPaymentMethod().toString().toUpperCase()).append("</b>\n");
@@ -239,7 +278,14 @@ public class TelegramBotService {
                 .append(" UZS</b>\n\n");
 
         sb.append("Thank you for using Mono Uzbekistan");
-        return sb.toString();
+        return new OrderMessageDto(sb.toString(), markup);
+    }
+
+    private InlineKeyboardButton createButton(String label, UUID orderId, String newStatus) {
+        return InlineKeyboardButton.builder()
+                .text(label)
+                .callbackData("update_status:" + orderId + ":" + newStatus)
+                .build();
     }
 
     public void sendTelegramPhoto(Long telegramUserId, String photoUrl, String caption) {
