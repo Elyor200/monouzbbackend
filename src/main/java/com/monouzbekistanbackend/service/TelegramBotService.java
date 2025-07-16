@@ -3,10 +3,7 @@ package com.monouzbekistanbackend.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.monouzbekistanbackend.config.MonoUzbBot;
 import com.monouzbekistanbackend.dto.cart.CartItemResponse;
-import com.monouzbekistanbackend.dto.order.OrderDetailsResponse;
-import com.monouzbekistanbackend.dto.order.OrderItemResponse;
-import com.monouzbekistanbackend.dto.order.OrderMessageDto;
-import com.monouzbekistanbackend.dto.order.OrderResponse;
+import com.monouzbekistanbackend.dto.order.*;
 import com.monouzbekistanbackend.entity.ProductPhoto;
 import com.monouzbekistanbackend.entity.User;
 import com.monouzbekistanbackend.entity.cart.CartItem;
@@ -15,6 +12,7 @@ import com.monouzbekistanbackend.entity.order.OrderItem;
 import com.monouzbekistanbackend.enums.OrderStatus;
 import com.monouzbekistanbackend.repository.ProductImageRepository;
 import com.monouzbekistanbackend.repository.UserRepository;
+import com.monouzbekistanbackend.repository.order.OrderRepository;
 import com.monouzbekistanbackend.service.user.TempUserSave;
 import com.monouzbekistanbackend.service.user.UserData;
 import jakarta.ws.rs.client.Client;
@@ -24,6 +22,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jmx.support.ObjectNameManager;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -54,6 +53,8 @@ public class TelegramBotService {
     private final IdGeneratorService idGeneratorService;
     private final TempUserSave tempUserSave;
     private final ProductImageRepository productImageRepository;
+    private final OrderRepository orderRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Getter
     @Value("${telegram.bot.token}")
@@ -66,12 +67,19 @@ public class TelegramBotService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public TelegramBotService(@Lazy MonoUzbBot monoUzbBot,
-                              UserRepository userRepository, IdGeneratorService idGeneratorService, TempUserSave tempUserSave, ProductImageRepository productImageRepository) {
+                              UserRepository userRepository,
+                              IdGeneratorService idGeneratorService,
+                              TempUserSave tempUserSave,
+                              ProductImageRepository productImageRepository,
+                              OrderRepository orderRepository,
+                              SimpMessagingTemplate messagingTemplate) {
         this.monoUzbBot = monoUzbBot;
         this.userRepository = userRepository;
         this.idGeneratorService = idGeneratorService;
         this.tempUserSave = tempUserSave;
         this.productImageRepository = productImageRepository;
+        this.orderRepository = orderRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     public void handleIncomingMessage(Message message) {
@@ -342,5 +350,17 @@ public class TelegramBotService {
             }
         }
         return null;
+    }
+
+    public void updateOrderStatus(UUID orderId, String status) {
+        Order order = orderRepository.findOrderByOrderIdV2(orderId);
+        order.setStatus(OrderStatus.valueOf(status.toUpperCase()));
+        orderRepository.save(order);
+
+        OrderStatusUpdateMessage updateMessage = new OrderStatusUpdateMessage();
+        updateMessage.setOrderId(orderId);
+        updateMessage.setStatus(status);
+
+        messagingTemplate.convertAndSend("topic/order-status/" + orderId, updateMessage);
     }
 }
