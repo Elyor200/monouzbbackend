@@ -361,6 +361,6 @@ public class TelegramBotService {
         updateMessage.setOrderId(orderId);
         updateMessage.setStatus(status);
 
-        messagingTemplate.convertAndSend("topic/order-status/" + orderId, updateMessage);
+        messagingTemplate.convertAndSend("/topic/order-status/" + orderId, updateMessage);
     }
 }
