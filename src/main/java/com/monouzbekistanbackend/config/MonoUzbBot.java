@@ -66,6 +66,15 @@ public class MonoUzbBot extends TelegramWebhookBot {
                 message.setChatId(update.getCallbackQuery().getMessage().getChatId());
                 message.setText(confirmStatus);
                 message.setParseMode("HTML");
+
+                String userNotifyText = "Your order status is now <b>" + newStatus + "</b>";
+
+                SendMessage userMessage = new SendMessage();
+                userMessage.setChatId(updatedOrder.getUser().getTelegramUserId());
+                userMessage.setText(userNotifyText);
+                userMessage.setParseMode("HTML");
+
+                telegramBotService.sendMessage(update.getCallbackQuery().getMessage().getChatId(), confirmStatus);
                 return editMessageText;
             }
         }
