@@ -235,16 +235,16 @@ public class TelegramBotService {
             List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
             if (order.getStatus() == OrderStatus.PENDING) {
                 buttons.add(List.of(
-                        createButton("Processing", order.getOrderId(), "PROCESSING"),
+                        createButton("⏳ Processing", order.getOrderId(), "PROCESSING"),
                         createButton("Cancel", order.getOrderId(), "CANCELED")
                 ));
             } else if (order.getStatus() == OrderStatus.PROCESSING) {
                 buttons.add(List.of(
-                        createButton("\uD83D\uDCE6 Ship", order.getOrderId(), "SHIPPED")
+                        createButton("\uD83D\uDCE6 Shipped", order.getOrderId(), "SHIPPED")
                 ));
             } else if (order.getStatus() == OrderStatus.SHIPPED) {
                 buttons.add(List.of(
-                        createButton("✅ Deliver", order.getOrderId(), "DELIVERED")
+                        createButton("\uD83D\uDE9A Delivered", order.getOrderId(), "DELIVERED")
                 ));
             }
 

@@ -61,12 +61,11 @@ public class MonoUzbBot extends TelegramWebhookBot {
                 editMessageText.setReplyMarkup(dto.getMarkup());
                 editMessageText.setParseMode("HTML");
 
-//                String confirmStatus = "Order status updated <b>" + newStatus + "</b>";
-//                SendMessage message = new SendMessage();
-//                message.setChatId(update.getCallbackQuery().getMessage().getChatId());
-//                message.setText(confirmStatus);
-//                message.setParseMode("HTML");
-
+                String confirmStatus = "Order status updated <b>" + newStatus + "</b>";
+                SendMessage message = new SendMessage();
+                message.setChatId(update.getCallbackQuery().getMessage().getChatId());
+                message.setText(confirmStatus);
+                message.setParseMode("HTML");
                 return editMessageText;
             }
         }
