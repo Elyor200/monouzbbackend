@@ -67,7 +67,8 @@ public class MonoUzbBot extends TelegramWebhookBot {
                 message.setText(confirmStatus);
                 message.setParseMode("HTML");
 
-                String userNotifyText = "Your order status is now <b>" + newStatus + "</b>";
+                String emoji = telegramBotService.getStatusEmoji(newStatus);
+                String userNotifyText = emoji + " your order status is now <b>" + newStatus + "</b>";
 
                 SendMessage userMessage = new SendMessage();
                 userMessage.setChatId(updatedOrder.getUser().getTelegramUserId());
@@ -75,6 +76,7 @@ public class MonoUzbBot extends TelegramWebhookBot {
                 userMessage.setParseMode("HTML");
 
                 telegramBotService.sendMessage(update.getCallbackQuery().getMessage().getChatId(), confirmStatus);
+                telegramBotService.sendMessage(updatedOrder.getUser().getTelegramUserId(), userNotifyText);
                 return editMessageText;
             }
         }

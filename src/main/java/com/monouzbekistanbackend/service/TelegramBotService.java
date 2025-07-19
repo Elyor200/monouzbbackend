@@ -235,16 +235,15 @@ public class TelegramBotService {
             List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
             if (order.getStatus() == OrderStatus.PENDING) {
                 buttons.add(List.of(
-                        createButton("⏳ Pendding -> Processing", order.getOrderId(), "PROCESSING"),
-                        createButton("Cancel", order.getOrderId(), "CANCELED")
+                        createButton("\uD83D\uDCE6 Pending", order.getOrderId(), "PROCESSING")
                 ));
             } else if (order.getStatus() == OrderStatus.PROCESSING) {
                 buttons.add(List.of(
-                        createButton("\uD83D\uDCE6 Processing -> Shipped", order.getOrderId(), "SHIPPED")
+                        createButton("⏳ Processing", order.getOrderId(), "SHIPPED")
                 ));
             } else if (order.getStatus() == OrderStatus.SHIPPED) {
                 buttons.add(List.of(
-                        createButton("\uD83D\uDE9A Shipped -> Delivered", order.getOrderId(), "DELIVERED")
+                        createButton("\uD83D\uDE9A Shipped", order.getOrderId(), "DELIVERED")
                 ));
             }
 
@@ -371,5 +370,15 @@ public class TelegramBotService {
 
         messagingTemplate.convertAndSend("/topic/order-status/" + orderId, updateMessage);
         return orderRepository.save(order);
+    }
+
+    public String getStatusEmoji(String status) {
+        return switch (status) {
+            case "PENDING" -> "\uD83D\uDEAB";
+            case "PROCESSING" -> "⏳";
+            case "SHIPPED" -> "\uD83D\uDE9A";
+            case "DELIVERED" -> "✅";
+            default -> "";
+        };
     }
 }
