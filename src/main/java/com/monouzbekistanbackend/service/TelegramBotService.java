@@ -352,15 +352,15 @@ public class TelegramBotService {
         return null;
     }
 
-    public void updateOrderStatus(UUID orderId, String status) {
+    public Order updateOrderStatus(UUID orderId, String status) {
         Order order = orderRepository.findOrderByOrderIdV2(orderId);
         order.setStatus(OrderStatus.valueOf(status.toUpperCase()));
-        orderRepository.save(order);
 
         OrderStatusUpdateMessage updateMessage = new OrderStatusUpdateMessage();
         updateMessage.setOrderId(orderId);
         updateMessage.setStatus(status);
 
         messagingTemplate.convertAndSend("/topic/order-status/" + orderId, updateMessage);
+        return orderRepository.save(order);
     }
 }

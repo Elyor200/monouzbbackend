@@ -1,12 +1,16 @@
 package com.monouzbekistanbackend.config;
 
+import com.monouzbekistanbackend.dto.order.OrderMessageDto;
+import com.monouzbekistanbackend.entity.order.Order;
 import com.monouzbekistanbackend.service.TelegramBotService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.util.UUID;
 
@@ -48,15 +52,22 @@ public class MonoUzbBot extends TelegramWebhookBot {
                 UUID orderId = UUID.fromString(parts[1]);
                 String newStatus = parts[2];
 
-                telegramBotService.updateOrderStatus(orderId, newStatus);
+                Order updatedOrder = telegramBotService.updateOrderStatus(orderId, newStatus);
+                OrderMessageDto dto = telegramBotService.buildOrderSummary(updatedOrder, true);
+                EditMessageText editMessageText = new EditMessageText();
+                editMessageText.setChatId(update.getCallbackQuery().getMessage().getChatId());
+                editMessageText.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
+                editMessageText.setText(dto.getText());
+                editMessageText.setReplyMarkup(dto.getMarkup());
+                editMessageText.setParseMode("HTML");
 
-                String confirmStatus = "Order status updated <b>" + newStatus + "</b>";
-                SendMessage message = new SendMessage();
-                message.setChatId(update.getCallbackQuery().getMessage().getChatId());
-                message.setText(confirmStatus);
-                message.setParseMode("HTML");
+//                String confirmStatus = "Order status updated <b>" + newStatus + "</b>";
+//                SendMessage message = new SendMessage();
+//                message.setChatId(update.getCallbackQuery().getMessage().getChatId());
+//                message.setText(confirmStatus);
+//                message.setParseMode("HTML");
 
-                return message;
+                return editMessageText;
             }
         }
 
