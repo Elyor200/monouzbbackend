@@ -1,5 +1,6 @@
 package com.monouzbekistanbackend.controller.order;
 
+import com.monouzbekistanbackend.config.MonoUzbBot;
 import com.monouzbekistanbackend.dto.order.*;
 import com.monouzbekistanbackend.entity.User;
 import com.monouzbekistanbackend.entity.order.Order;
@@ -10,9 +11,8 @@ import com.monouzbekistanbackend.service.order.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("v1/orders")
@@ -21,13 +21,15 @@ public class OrderController {
     private final TelegramBotService telegramBotService;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
+    private final MonoUzbBot monoUzbBot;
 
     public OrderController(OrderService orderService,
-                           TelegramBotService telegramBotService, OrderRepository orderRepository, UserRepository userRepository) {
+                           TelegramBotService telegramBotService, OrderRepository orderRepository, UserRepository userRepository, MonoUzbBot monoUzbBot) {
         this.orderService = orderService;
         this.telegramBotService = telegramBotService;
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
+        this.monoUzbBot = monoUzbBot;
     }
 
     @PostMapping("/place-order")
@@ -44,8 +46,9 @@ public class OrderController {
 
             OrderMessageDto adminMessage = telegramBotService.buildOrderSummary(order, true);
             OrderMessageDto userMessage = telegramBotService.buildOrderSummary(order, false);
-            telegramBotService.sendMessage(user.getTelegramUserId(), userMessage.getText());
+            Integer userMessageId = telegramBotService.sendMessage(user.getTelegramUserId(), userMessage.getText());
             telegramBotService.sendProductPhoto(order, user.getTelegramUserId());
+            monoUzbBot.orderMessageIdMap.put(orderResponse.orderId(), userMessageId);
 
             telegramBotService.sendMessageWithMarkup(adminChatId, adminMessage.getText(), adminMessage.getMarkup());
             telegramBotService.sendProductPhoto(order, adminChatId);

@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -103,7 +104,12 @@ public class OrderService {
         order.setPaymentMethod(request.paymentMethod());
         order.setPhoneNumber(request.phoneNumber());
         order.setDeliveryMethod(request.deliveryMethod());
-        order.setDeliveryAddress(request.deliveryAddress());
+
+        if (request.deliveryAddress() != null && !request.deliveryAddress().isBlank()) {
+            order.setDeliveryAddress(request.deliveryAddress());
+        } else {
+            order.setDeliveryAddress("Self pickup from store");
+        }
         order.setLat(request.lat());
         order.setLng(request.lng());
         order.setFullName(request.fullName());
@@ -149,6 +155,9 @@ public class OrderService {
         Order order = orderRepository.findOrderByOrderId(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("Asia/Tashkent"));
+        String createdAtFormatted = order.getCreatedAt().atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("Asia/Tashkent")).format(formatter);
+
         List<OrderDetailsResponse.OrderItemsDetails> itemsDetailsList = order.getOrderItems().stream().map(orderItem ->
                 new OrderDetailsResponse.OrderItemsDetails(
                         orderItem.getProduct().getName(),
@@ -165,8 +174,8 @@ public class OrderService {
                 order.getOrderId(),
                 order.getTotalAmount(),
                 order.getStatus().name(),
-                order.getCreatedAt(),
-                order.getPaymentMethod().name(),
+                createdAtFormatted,
+                order.getPaymentMethod().name().toUpperCase(),
                 order.getPhoneNumber(),
                 order.getDeliveryAddress(),
                 itemsDetailsList
@@ -192,7 +201,7 @@ public class OrderService {
         );
     }
 
-    private String formatColor(String color) {
+    public String formatColor(String color) {
         if (color == null || color.isBlank()) {
             return "";
         }

@@ -13,6 +13,7 @@ import com.monouzbekistanbackend.enums.OrderStatus;
 import com.monouzbekistanbackend.repository.ProductImageRepository;
 import com.monouzbekistanbackend.repository.UserRepository;
 import com.monouzbekistanbackend.repository.order.OrderRepository;
+import com.monouzbekistanbackend.service.order.OrderService;
 import com.monouzbekistanbackend.service.user.TempUserSave;
 import com.monouzbekistanbackend.service.user.UserData;
 import jakarta.ws.rs.client.Client;
@@ -55,6 +56,7 @@ public class TelegramBotService {
     private final ProductImageRepository productImageRepository;
     private final OrderRepository orderRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final OrderService orderService;
 
     @Getter
     @Value("${telegram.bot.token}")
@@ -72,7 +74,7 @@ public class TelegramBotService {
                               TempUserSave tempUserSave,
                               ProductImageRepository productImageRepository,
                               OrderRepository orderRepository,
-                              SimpMessagingTemplate messagingTemplate) {
+                              SimpMessagingTemplate messagingTemplate, OrderService orderService) {
         this.monoUzbBot = monoUzbBot;
         this.userRepository = userRepository;
         this.idGeneratorService = idGeneratorService;
@@ -80,6 +82,7 @@ public class TelegramBotService {
         this.productImageRepository = productImageRepository;
         this.orderRepository = orderRepository;
         this.messagingTemplate = messagingTemplate;
+        this.orderService = orderService;
     }
 
     public void handleIncomingMessage(Message message) {
@@ -166,16 +169,18 @@ public class TelegramBotService {
         return body;
     }
 
-    public void sendMessage(Long chatId, String text) {
+    public Integer sendMessage(Long chatId, String text) {
         SendMessage message = SendMessage.builder()
                 .chatId(chatId.toString())
                 .text(text)
                 .parseMode("HTML")
                 .build();
         try {
-            monoUzbBot.execute(message);
+            Message sendMessage = monoUzbBot.execute(message);
+            return sendMessage.getMessageId();
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
     }
 
@@ -276,7 +281,7 @@ public class TelegramBotService {
             sb.append("Address: <b>").append(order.getDeliveryAddress()).append("</b>\n");
         } else {
             sb.append("Type of delivery: <b>").append(order.getDeliveryMethod().toUpperCase()).append("</b>\n");
-            sb.append("Delivery:").append("<b>").append(" Self pick up from store").append("</b>\n");
+            sb.append("Delivery:").append("<b>").append(" Self pickup from store").append("</b>\n");
         }
 
         sb.append("\n\uD83D\uDED2 <b>Items:</b>\n\n");
@@ -284,7 +289,8 @@ public class TelegramBotService {
             sb.append("Product Name: ").append(item.getProductName());
             sb.append("\nProduct ID: <code>").append(item.getProduct().getProductId()).append("</code>");
             sb.append("\nSize: ").append(item.getSize());
-            sb.append("\nColor: ").append(item.getColor().toUpperCase());
+//            sb.append("\nColor: ").append(item.getColor().toUpperCase());
+            sb.append("\nColor: ").append(orderService.formatColor(item.getColor()));
             sb.append("\nQuantity: ").append(item.getQuantity());
             sb.append("\nPrice: ").append(format.format(item.getTotalPrice())).append(" UZS\n\n");
         }

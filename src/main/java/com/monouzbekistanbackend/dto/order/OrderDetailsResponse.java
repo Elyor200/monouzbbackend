@@ -11,7 +11,7 @@ public record OrderDetailsResponse(
         UUID orderId,
         BigDecimal totalAmount,
         String status,
-        LocalDateTime createdAt,
+        String createdAt,
         String paymentMethod,
         String phoneNumber,
         String address,
