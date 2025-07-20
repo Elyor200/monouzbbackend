@@ -67,8 +67,7 @@ public class MonoUzbBot extends TelegramWebhookBot {
                 message.setText(confirmStatus);
                 message.setParseMode("HTML");
 
-                String emoji = telegramBotService.getStatusEmoji(newStatus);
-                String userNotifyText = emoji + " your order status is now <b>" + newStatus + "</b>";
+                String userNotifyText = "Your order status updated <b>" + newStatus + "</b>";
 
                 SendMessage userMessage = new SendMessage();
                 userMessage.setChatId(updatedOrder.getUser().getTelegramUserId());
